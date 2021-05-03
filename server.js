@@ -1,7 +1,7 @@
 //import express
 const express = require('express');
 const dbConnection = require('./config/db');
-const bodyParser = require('body-parser');
+
 
 //initialise app variable with express
 const app = express();
