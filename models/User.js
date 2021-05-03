@@ -1,7 +1,7 @@
 //Create schema which holds different fields this user to have
 //import mongoose
 const mongoose = require('mongoose');
-const UserSchema = new mongoose.schema ({
+const UserSchema = new mongoose.Schema ({
     name:{
         type:String,
         required: true
