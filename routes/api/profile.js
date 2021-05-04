@@ -116,4 +116,38 @@ router.post(
   }
 );
 
+//Get request to all public profiles
+
+router.get('/', async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    res.json(profiles);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Internal Server Error');
+  }
+});
+//Get request to profiles by user Id
+
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const profile = await Profile.findOne({
+      user: req.params.user_id,
+    }).populate('user', ['name', 'avatar']);
+
+    if (!profile)
+        return res.status(400).json({ msg: 'Profile does not exist for this user' }); 
+
+    res.json(profile);
+     
+  } catch (err) {
+    console.error(err.message);
+    if(err.kind == 'ObjectId'){
+        return res.status(400).json({ msg: 'Profile does not exist for this user' }); 
+
+    }
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 module.exports = router;
