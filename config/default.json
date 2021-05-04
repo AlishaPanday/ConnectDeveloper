@@ -1,6 +1,6 @@
 {
     "mongoURI": "mongodb+srv://MongoDB:Alisha@connectdeveloper.mozeo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
     "secretJWT": "secretjwttoken",
-    "githubClientId": "0d9d0e33f2dd8d440d79",
-    "githubSecret": "a6b0c2df692fe5a30bca223e80fde60d9eb98f6d" 
+    "githubClientId": "",
+    "githubSecret": "" 
 }
