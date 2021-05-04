@@ -117,7 +117,6 @@ router.post(
 );
 
 //Get request to all public profiles
-
 router.get('/', async (req, res) => {
   try {
     const profiles = await Profile.find().populate('user', ['name', 'avatar']);
@@ -127,8 +126,8 @@ router.get('/', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-//Get request to profiles by user Id
 
+//Get request to profiles by user Id
 router.get('/user/:user_id', async (req, res) => {
   try {
     const profile = await Profile.findOne({
@@ -136,15 +135,17 @@ router.get('/user/:user_id', async (req, res) => {
     }).populate('user', ['name', 'avatar']);
 
     if (!profile)
-        return res.status(400).json({ msg: 'Profile does not exist for this user' }); 
+      return res
+        .status(400)
+        .json({ msg: 'Profile does not exist for this user' });
 
     res.json(profile);
-     
   } catch (err) {
     console.error(err.message);
-    if(err.kind == 'ObjectId'){
-        return res.status(400).json({ msg: 'Profile does not exist for this user' }); 
-
+    if (err.kind == 'ObjectId') {
+      return res
+        .status(400)
+        .json({ msg: 'Profile does not exist for this user' });
     }
     res.status(500).send('Internal Server Error');
   }
@@ -153,51 +154,88 @@ router.get('/user/:user_id', async (req, res) => {
 //Delete Profile
 //add auth middleware as it is private and have access to token
 router.delete('/', auth, async (req, res) => {
-    try {
-     //Remove user profile
-      await Profile.findOneAndRemove({user:req.user.id});
-     //Remove user account
-      await User.findOneAndRemove({_id:req.user.id});
-      res.json({msg:"User account Deleted"});
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-
-//put request to add profile experience
-router.put('/experience', [auth,[
-  check('title','Title is required').not().isEmpty(),
-  check('company','Company is required').not().isEmpty(),
-  check('from','From date is required').not().isEmpty()
-
-]
-], 
-async (req, res) => {
-  const errors = validationResult(req);
-  if(!errors.isEmpty()){
-    return res.status(400).json({errors:errors.array()});
-  }
-  //destructuring req.body
-  const {title,company,location,from,to,current,description} = req.body;
-
-  const addExp = {title,company,location,from,to,current,description}
-
   try {
-   //fetch profile first to add experience
-   const profile = await Profile.findOne({user:req.user.id});
-
-   //unshift method is  to show up recent experience at the top
-   profile.experience.unshift(addExp);
-
-   await profile.save();
-
-    res.json(profile);
+    //Remove user profile
+    await Profile.findOneAndRemove({ user: req.user.id });
+    //Remove user account
+    await User.findOneAndRemove({ _id: req.user.id });
+    res.json({ msg: 'User account Deleted' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Internal Server Error');
   }
 });
 
+//put request to add profile experience
+router.put(
+  '/experience',
+  [
+    auth,
+    [
+      check('title', 'Title is required').not().isEmpty(),
+      check('company', 'Company is required').not().isEmpty(),
+      check('from', 'From date is required').not().isEmpty(),
+    ],
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    //destructuring req.body
+    const {
+      title,
+      company,
+      location,
+      from,
+      to,
+      current,
+      description,
+    } = req.body;
+
+    const addExp = { title, company, location, from, to, current, description };
+
+    try {
+      //fetch profile first to add experience
+      const profile = await Profile.findOne({ user: req.user.id });
+
+      //unshift method is  to show up recent experience at the top
+      profile.experience.unshift(addExp);
+
+      await profile.save();
+
+      res.json(profile);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Internal Server Error');
+    }
+  }
+);
+
+//Delete Experience
+//add auth middleware as it is private and have access to token
+router.delete('/experience/:exp_id', auth, async (req, res) => {
+  try {
+    //fetch the profile of user
+    const fetchProfile = await Profile.findOne({ user: req.user.id });
+
+    //getting index of experience
+    const indexRemove = fetchProfile.experience
+      .map(item => item.id)
+      .indexOf(req.params.exp_id);
+
+    //splice out
+    fetchProfile.experience.splice(indexRemove, 1);
+
+    //save profile
+    await fetchProfile.save();
+
+    //sending back response
+    res.json(fetchProfile);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 module.exports = router;
