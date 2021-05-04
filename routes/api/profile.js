@@ -238,4 +238,77 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
   }
 });
 
+
+//put request to add  education
+router.put(
+  '/education',
+  [
+    auth,
+    [
+      check('school', 'School is required').not().isEmpty(),
+      check('degree', 'Degree is required').not().isEmpty(),
+      check('fieldofstudy', 'Field of study date is required').not().isEmpty(),
+    ],
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    //destructuring req.body
+    const {
+      school,
+      degree,
+      fieldofstudy,
+      from,
+      to,
+      current,
+      description,
+    } = req.body;
+
+    const addEdu = { school, degree, fieldofstudy, from, to, current, description };
+
+    try {
+      //fetch profile first to add experience
+      const profile = await Profile.findOne({ user: req.user.id });
+
+      //unshift method is  to show up recent experience at the top
+      profile.education.unshift(addEdu);
+
+      await profile.save();
+
+      res.json(profile);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Internal Server Error');
+    }
+  }
+);
+
+//Delete Education
+//add auth middleware as it is private and have access to token
+router.delete('/education/:edu_id', auth, async (req, res) => {
+  try {
+    //fetch the profile of user
+    const fetchProfile = await Profile.findOne({ user: req.user.id });
+
+    //getting index of experience
+    const indexRemove = fetchProfile.education
+      .map(item => item.id)
+      .indexOf(req.params.edu_id);
+
+    //splice out
+    fetchProfile.education.splice(indexRemove, 1);
+
+    //save profile
+    await fetchProfile.save();
+
+    //sending back response
+    res.json(fetchProfile);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 module.exports = router;
