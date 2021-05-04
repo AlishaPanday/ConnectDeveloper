@@ -150,4 +150,19 @@ router.get('/user/:user_id', async (req, res) => {
   }
 });
 
+//Delete Profile
+//add auth middleware as it is private and have access to token
+router.delete('/', auth, async (req, res) => {
+    try {
+     //Remove user profile
+      await Profile.findOneAndRemove({user:req.user.id});
+     //Remove user account
+      await User.findOneAndRemove({_id:req.user.id});
+      res.json({msg:"User account Deleted"});
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
 module.exports = router;
