@@ -106,4 +106,58 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+//Put(update like in like array ) request for private api/posts/like/:id
+router.put('/like/:id', auth, async (req, res) => {
+  try {
+    //fetch the post by ID
+    const fetchPost = await Post.findById(req.params.id);
+
+    //check if the post is already liked by user using filter & compare current user to user i.e logged in.
+    if (fetchPost.like.filter(like => like.user.toString() === req.user.id).length > 0) 
+    {
+      return res.status(400).json({ msg: 'You liked the post already' });
+    }
+
+    //if user hasnt already liked it, take that post like and add to like array using unshift method
+    fetchPost.like.unshift({ user: req.user.id });
+
+    //save it db
+    await fetchPost.save();
+    res.json(fetchPost.like);
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+//Put request for private api/posts/unlike/:id
+//unlike a post
+router.put('/unlike/:id', auth, async (req, res) => {
+    try {
+      //fetch the post by ID
+      const fetchPost = await Post.findById(req.params.id);
+  
+      //check if the post hasnt yet been liked
+      if (fetchPost.like.filter(like => like.user.toString() === req.user.id).length === 0) 
+      {
+        return res.status(400).json({ msg: 'Post has not been liked' });
+      }
+  
+      //remove like
+      const removeIndex = fetchPost.like.map(like => like.user.toString()).indexOf(req.user.id);
+
+      //splice out from the array
+      fetchPost.like.splice(removeIndex, 1);
+  
+      //save it db
+      await fetchPost.save();
+      res.json(fetchPost.like);
+  
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Internal Server Error');
+    }
+  });
+
 module.exports = router;
