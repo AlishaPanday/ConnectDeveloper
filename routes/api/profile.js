@@ -4,6 +4,7 @@ const express = require('express');
 const auth = require('../../middleware/auth');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
+const Post = require('../../models/Post');
 const { check, validationResult } = require('express-validator');
 const request = require('request');
 const config = require('config');
@@ -74,9 +75,11 @@ router.post(
     if (about) profileSector.about = about;
     if (title) profileSector.title = title;
     if (githubuser) profileSector.githubuser = githubuser;
-    if (skills) {
-      profileSector.skills = skills.split(',').map(skill => skill.trim());
-    }
+    if (skills) profileSector.skills = skills;
+
+    // if (skills) {
+    //   profileSector.skills = skills.split(',').map(skill => skill.trim());
+    // }
 
     //Create Social Media object
     profileSector.socialmedia = {};
@@ -156,6 +159,9 @@ router.get('/user/:user_id', async (req, res) => {
 //add auth middleware as it is private and have access to token
 router.delete('/', auth, async (req, res) => {
   try {
+    //Remove user post
+    await Post.deleteMany({ user: req.user.id });
+
     //Remove user profile
     await Profile.findOneAndRemove({ user: req.user.id });
     //Remove user account
@@ -239,7 +245,6 @@ router.delete('/experience/:exp_id', auth, async (req, res) => {
   }
 });
 
-
 //put request to add  education
 router.put(
   '/education',
@@ -267,7 +272,15 @@ router.put(
       description,
     } = req.body;
 
-    const addEdu = { school, degree, fieldofstudy, from, to, current, description };
+    const addEdu = {
+      school,
+      degree,
+      fieldofstudy,
+      from,
+      to,
+      current,
+      description,
+    };
 
     try {
       //fetch profile first to add experience
@@ -314,30 +327,29 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
 
 //get api/profile/github/:username to get user repos from github
 
-router.get('/github/:username',(req,res)=>{
-  try{
+router.get('/github/:username', (req, res) => {
+  try {
     const options = {
-      uri:`https://api.github.com/users/${req.params.username}/repos?per_page=5&
+      uri: `https://api.github.com/users/${
+        req.params.username
+      }/repos?per_page=5&
       sort=created:asc&client_id=${config.get('githubClientId')}&client_secret=
       ${config.get('githubSecret')}`,
-      method:'GET',
-      headers:{'user-agent':'node.js'}
-
+      method: 'GET',
+      headers: { 'user-agent': 'node.js' },
     };
 
-    request(options,(error,response,body) => {
-      if(error) console.error(error);
-      if(response.statusCode !== 200){
-        return res.status(400).json({msg:'No Github profile found'});
+    request(options, (error, response, body) => {
+      if (error) console.error(error);
+      if (response.statusCode !== 200) {
+        return res.status(400).json({ msg: 'No Github profile found' });
       }
 
       res.json(JSON.parse(body));
-
     });
-  }catch(err){
+  } catch (err) {
     console.error(err.message);
     res.status(500).send('Internal Server Error');
-
   }
-})
+});
 module.exports = router;

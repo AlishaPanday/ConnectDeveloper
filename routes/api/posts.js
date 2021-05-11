@@ -49,8 +49,8 @@ router.post(
 router.get('/', auth, async (req, res) => {
   try {
     //find most recent post from db sort by date
-    const fetchPost = await Post.find().sort({ date: -1 });
-    res.json(fetchPost);
+    const posts = await Post.find().sort({ date: -1 });
+    res.json(posts);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Internal Server Error');
