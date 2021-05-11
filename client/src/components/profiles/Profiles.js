@@ -16,7 +16,7 @@ const Profiles = ({ getProfiles, profile: { profiles, loading } }) => {
         <Spinner />
       ) : (
         <Fragment>
-          <h1 className='large text-dark'><i className='fab fa-connectdevelop'></i>
+          <h1 className='large text-secondary'><i className='fab fa-connectdevelop'></i>
             Build Your Connection with top talents.</h1>
    
           <div className='profiles'>

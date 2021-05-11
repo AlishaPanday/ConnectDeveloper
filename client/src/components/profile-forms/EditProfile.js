@@ -156,7 +156,7 @@ const EditProfile = ({
             onChange={e => onChange(e)}
           />
           <small className='form-text'>
-            If you want your latest repos and a Github link, include your
+           for repos and a Github link, include your
             username
           </small>
         </div>
@@ -167,7 +167,7 @@ const EditProfile = ({
             value={about}
             onChange={e => onChange(e)}
           />
-          <small className='form-text'>Tell us a little about yourself</small>
+          <small className='form-text'>Tell us about yourself</small>
         </div>
 
         <div className='my-2'>
@@ -176,7 +176,7 @@ const EditProfile = ({
             type='button'
             className='btn btn-light'
           >
-            Add Social Network Links
+            Add Social Media 
           </button>
           <span>Optional</span>
         </div>

@@ -24,7 +24,7 @@ const Dashboard = ({
   ) : (
     <Fragment>
       {/* <h1 className='large text-primary'> Dashboard</h1> */}
-      <h1 className='large text-dark'>
+      <h1 className='large text-secondary'>
         <i className='fas fa-tachometer-alt'></i> Welcome {user && user.name}
       </h1>
       {profile !== null ? (

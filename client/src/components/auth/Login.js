@@ -32,9 +32,9 @@ const Login = ({login, isAuthenticated}) => {
 
   return (
     <Fragment>
-      <h1 className='large text-primary'>Sign in</h1>
-      <h3 className='medium text-primary'>Welcome Back</h3>
-      <p className='lead'>
+      {/* <h1 className='large text-secondary'>Sign in</h1> */}
+      <h3 className='medium text-secondary'>Welcome Back</h3>
+      <p className='lead text-secondary'>
         <i className='fas fa-user'></i>Sign Into Your Account
       </p>
       <form className='form' onSubmit={e => onSubmit(e)}>
@@ -61,7 +61,7 @@ const Login = ({login, isAuthenticated}) => {
 
         <input type='submit' className='btn btn-primary' value='Login' />
       </form>
-      <p className='my-1'>
+      <p className='my-1 text-secondary'>
         New? <Link to='/signup'>Sign Up Free</Link>
       </p>
     </Fragment>
